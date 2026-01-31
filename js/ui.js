@@ -12,6 +12,8 @@ const screens = {
   setlist: document.getElementById("screen-setlist")
 };
 
+let currentScreen = "categories";
+
 const uiLock = document.getElementById("ui-lock");
 
 function lockUI(text = "Please wait…") {
@@ -23,9 +25,14 @@ function unlockUI() {
   uiLock.classList.add("hidden");
 }
 
+export function getCurrentScreen() {
+  return currentScreen;
+}
+
 function showScreen(name, push = true) {
   Object.values(screens).forEach(s => s.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+  currentScreen = name;
 
   if (push) {
     history.pushState({ screen: name }, "");
@@ -97,7 +104,7 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
       } catch (err) {
         console.error(err);
         updateBtn.textContent = "Update Failed";
-        alert("Failed to update songs. Please try again.");
+        showToast("Failed to update songs. Please try again.");
       } finally {
         unlockUI();
         updateBtn.disabled = false;
@@ -160,11 +167,11 @@ export function renderSongView(song, push = true) {
     const added = await addToSetlist(song.id);
 
     if (!added) {
-      alert(t("already_in_setlist"));
+      showToast(t("already_in_setlist"));
       return;
     }
 
-    alert(t("added_to_setlist"));
+    showToast(t("added_to_setlist"));
     addBtn.disabled = true;
   };
 
@@ -309,6 +316,16 @@ function resolveFont(fontName) {
     family: fontName,
     weight: "normal"
   };
+}
+
+export async function showToast(message, duration = 2000) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, duration);
 }
 
 export { lockUI, unlockUI };

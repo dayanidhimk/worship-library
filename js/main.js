@@ -6,6 +6,7 @@ import {
   renderSetlist
 } from "./ui.js";
 import { clearSetlist } from "./setlist.js";
+import { getCurrentScreen, showToast } from "./ui.js";
 import { t } from "./lang.js";
 
 document.getElementById("app-title").textContent = t("app_name");
@@ -22,22 +23,49 @@ let isHandlingPopState = false;
 let currentCategory = null;
 let currentSongs = [];
 
+let lastBackPressTime = 0;
+
 window.onpopstate = e => {
-  if (!e.state || !e.state.screen) return;
+  if (isHandlingPopState) return;
 
   isHandlingPopState = true;
 
-  const screen = e.state.screen;
+  const current = getCurrentScreen();
 
-  if (screen === "categories") {
-    renderCategories(onCategorySelect, false);
+  if (current === "categories") {
+    const now = Date.now();
+
+    if (now - lastBackPressTime < 2000) {
+      // Let Android exit the app
+      if (navigator.app && navigator.app.exitApp) {
+        navigator.app.exitApp();
+      }
+      isHandlingPopState = false;
+      return;
+    }
+
+    lastBackPressTime = now;
+    showToast(t("press_back_again"));
+
+    // Cancel this back action by restoring history
+    history.pushState({ screen: "categories" }, "");
+    isHandlingPopState = false;
+    return;
   }
 
-  if (screen === "songs") {
+  // Normal navigation (NOT home)
+  if (!e.state || !e.state.screen) {
+    isHandlingPopState = false;
+    return;
+  }
+
+  const target = e.state.screen;
+
+  if (target === "songs") {
     renderSongList(currentCategory, onSongSelect, false);
-  }
-
-  if (screen === "import") {
+  } else if (target === "categories") {
+    renderCategories(onCategorySelect, false);
+  } else if (target === "import") {
     renderCategories(onCategorySelect, false);
   }
 

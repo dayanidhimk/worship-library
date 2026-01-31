@@ -215,3 +215,23 @@ body {
   font-size: 15px;
   color: var(--color-fg);
 }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 10000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.toast.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
