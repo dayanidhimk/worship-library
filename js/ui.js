@@ -46,7 +46,7 @@ export async function renderCategories(onSelect, push = true) {
 
   // All Songs option
   const allLi = document.createElement("li");
-  allLi.textContent = t("songs");
+  allLi.textContent = t("all_songs");
   allLi.onclick = () => onSelect(null);
   list.appendChild(allLi);
 
@@ -173,7 +173,9 @@ export function renderSongView(song, push = true) {
   
   function renderLyrics(raw, font) {
     const div = document.createElement("div");
-    div.style.fontFamily = font || "inherit";
+    const resolved = resolveFont(font);
+    div.style.fontFamily = resolved.family;
+    div.style.fontWeight = resolved.weight;
     div.innerHTML = raw
       .replace(/<slide>/g, "\n\n")
       .replace(/<BR>/g, "\n");
@@ -278,6 +280,35 @@ export async function renderSetlist() {
     li.appendChild(removeBtn);
     list.appendChild(li);
   }
+}
+
+function resolveFont(fontName) {
+  if (!fontName) {
+    return {
+      family: "inherit",
+      weight: "normal"
+    };
+  }
+
+  const map = {
+    "Baloo Thambi": {
+      family: "'Baloo Thambi 2', sans-serif",
+      weight: 600
+    },
+    "Noto Sans Kannada SemiBold": {
+      family: "'Noto Sans Kannada', sans-serif",
+      weight: 600
+    },
+    "Noto Sans Kannada": {
+      family: "'Noto Sans Kannada', sans-serif",
+      weight: 500
+    }
+  };
+
+  return map[fontName] || {
+    family: fontName,
+    weight: "normal"
+  };
 }
 
 export { lockUI, unlockUI };

@@ -1,38 +1,82 @@
+/* =========================================================
+   DESIGN TOKENS (Theme Variables)
+========================================================= */
 :root {
-  --bg: #f7f7f7;
-  --fg: #1e1e1e;
-  --muted: #777;
-  --card: #ffffff;
-  --accent: #4a6cf7;
+  /* Core Colors */
+  --color-bg: #f7f7f7;
+  --color-fg: #1e1e1e;
+  --color-muted: #777;
+  --color-surface: #ffffff;
+  --color-accent: #0046FF;
+  --color-danger: #ff4d4d;
+
+  /* Button Colors */
+  --btn-primary-bg: var(--color-accent);
+  --btn-primary-fg: #ffffff;
+
+  --btn-secondary-bg: transparent;
+  --btn-secondary-border: var(--color-accent);
+  --btn-secondary-fg: var(--color-accent);
+
+  --btn-danger-bg: #ff7777;
+  --btn-danger-bg-hover: #ff0000;
+  --btn-danger-fg: #000;
+  --btn-danger-fg-hover: #ffffff;
+
+  /* Input */
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --input-border: #ddd;
+  --input-focus-border: #4a90e2;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 25px;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* =========================================================
+   BASE
+========================================================= */
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-}
-
-.app-header {
-  padding: 14px;
-  text-align: center;
-  font-weight: 600;
-  background: var(--card);
-  border-bottom: 1px solid #ddd;
-}
-
-.app-body {
-  padding: 12px;
-}
-
-.screen {
-  display: block;
+  background: var(--color-bg);
+  color: var(--color-fg);
 }
 
 .hidden {
   display: none;
 }
 
+/* =========================================================
+   LAYOUT
+========================================================= */
+.app-header {
+  padding: 14px;
+  text-align: center;
+  font-weight: 600;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--input-border);
+}
+
+.app-body {
+  padding: 12px;
+}
+
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* =========================================================
+   LISTS
+========================================================= */
 .list {
   list-style: none;
   padding: 0;
@@ -42,92 +86,116 @@ body {
 .list li {
   padding: 14px;
   margin-bottom: 8px;
-  background: var(--card);
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   cursor: pointer;
+  transition: 0.15s;
 }
 
 .list li:active {
   opacity: 0.7;
 }
 
+/* =========================================================
+   BUTTONS
+========================================================= */
 .primary-btn {
   width: 100%;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: none;
-  background: var(--accent);
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
   font-size: 15px;
-}
-
-.link-btn {
-  border: none;
-  background: none;
-  color: var(--accent);
-  font-size: 14px;
-}
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#lyrics-container div {
-  margin-bottom: 20px;
-  white-space: pre-wrap;
-  line-height: 1.6;
 }
 
 .secondary-btn {
   width: 100%;
   margin: 10px 0;
   padding: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--btn-secondary-border);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-fg);
   font-size: 14px;
 }
 
+.link-btn {
+  border: none;
+  background: none;
+  color: var(--color-accent);
+  font-size: 14px;
+  padding: 0;
+}
+
+/* Danger / Remove */
+.remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 40px;
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-fg);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-btn:hover {
+  background: var(--btn-danger-bg-hover);
+  color: var(--btn-danger-fg-hover);
+}
+
+.remove-btn:active {
+  transform: scale(0.9);
+}
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
 #search-box {
-  /* Dynamic Width */
-  width: 90%; 
-  max-width: 600px; /* Prevents it from getting awkwardly long on desktops */
-  min-width: 280px; /* Ensures it stays usable on small phones */
-  
-  /* Layout & Spacing */
+  width: 90%;
+  max-width: 600px;
+  min-width: 280px;
   display: block;
   margin: 20px auto;
   padding: 12px 20px;
-  
-  /* Aesthetics */
-  font-size: 16px; /* Prevents iOS zoom-on-focus */
-  color: #333;
-  background: rgba(255, 255, 255, 0.9); /* Slightly translucent */
-  border: 1px solid #ddd;
-  border-radius: 25px; /* Rounded pill shape */
-  
-  /* Smooth Transitions */
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  font-size: 16px;
+  color: var(--color-fg);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-lg);
   outline: none;
+
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
-/* Interaction States */
 #search-box:focus {
-  border-color: #4A90E2; /* Subtle blue highlight */
-  box-shadow: 0 6px 12px rgba(74, 144, 226, 0.2);
-  background: #ffffff;
+  border-color: var(--input-focus-border);
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
 }
 
-/* Placeholder Styling */
 #search-box::placeholder {
-  color: #999;
+  color: var(--color-muted);
   font-style: italic;
 }
 
+/* =========================================================
+   LYRICS
+========================================================= */
+#lyrics-container div {
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   UI LOCK (Blocking Overlay)
+========================================================= */
 .ui-lock {
   position: fixed;
   inset: 0;
@@ -145,32 +213,5 @@ body {
 
 .ui-lock-text {
   font-size: 15px;
-  color: var(--fg);
-}
-
-.remove-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  
-  margin-left: 40px;
-  
-  background: #ff7777;
-  color: #000;
-  border: none;
-  border-radius: 15px;
-  
-  font-size: inherit - 3px;
-  cursor: pointer;
-  transition: 0.2s;
-  vertical-align: middle;
-}
-
-.remove-btn:hover {
-  background: #ff0000;
-  color: white;
-}
-
-.remove-btn:active {
-  transform: scale(0.9);
+  color: var(--color-fg);
 }

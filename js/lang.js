@@ -4,7 +4,7 @@ const LANG = {
   categories: "Categories",
   songs: "Songs",
   setlist: "Schedule",
-
+  all_songs: "All Songs",
   add_to_setlist: "Add to Schedule",
   already_in_setlist: "This song is already in the schedule",
   added_to_setlist: "Song added to schedule ✓",
