@@ -9,30 +9,43 @@ function generateSongId(categoryId, index) {
   return `${categoryId}_${String(index).padStart(4, "0")}`;
 }
 
-export async function importCategoryFromXML(xmlText) {
+export async function importCategoryFromXML(xmlText, onProgress) {
+  onProgress?.(5);
+
   const songsParsed = parseSongDB(xmlText);
-  if (songsParsed.length === 0) return;
+  if (songsParsed.length === 0) {
+    onProgress?.(100);
+    return;
+  }
 
   const categoryId = songsParsed[0].category;
   const db = await openDB();
 
+  // DELETE OLD SONGS (WAIT FOR COMPLETION)
+  await new Promise((resolve) => {
+    const tx = db.transaction("songs", "readwrite");
+    const store = tx.objectStore("songs");
+    const index = store.index("categoryId");
+
+    const req = index.openCursor(IDBKeyRange.only(categoryId));
+    req.onsuccess = (e) => {
+      const cursor = e.target.result;
+      if (cursor) {
+        store.delete(cursor.primaryKey);
+        cursor.continue();
+      }
+    };
+
+    tx.oncomplete = () => resolve();
+  });
+
+  onProgress?.(30);
+
+  // INSERT CATEGORY + SONGS
   const tx = db.transaction(["categories", "songs"], "readwrite");
   const categoryStore = tx.objectStore("categories");
   const songStore = tx.objectStore("songs");
 
-  // 🔥 Remove existing songs of this category (update case)
-  const index = songStore.index("categoryId");
-  const deleteRequest = index.openCursor(IDBKeyRange.only(categoryId));
-
-  deleteRequest.onsuccess = (e) => {
-    const cursor = e.target.result;
-    if (cursor) {
-      songStore.delete(cursor.primaryKey);
-      cursor.continue();
-    }
-  };
-
-  // Insert category
   categoryStore.put({
     id: categoryId,
     name: categoryId,
@@ -40,15 +53,15 @@ export async function importCategoryFromXML(xmlText) {
     lastUpdated: Date.now()
   });
 
-  // Insert songs
+  const total = songsParsed.length;
+
   songsParsed.forEach((song, i) => {
     songStore.put({
       id: generateSongId(categoryId, i + 1),
-      categoryId: categoryId,
+      categoryId,
 
       name: song.name,
       name2: song.name2,
-
       searchIndex: normalizeText(song.name + " " + song.name2),
 
       fonts: song.fonts,
@@ -58,9 +71,15 @@ export async function importCategoryFromXML(xmlText) {
       lyrics: song.lyrics,
       meta: song.meta
     });
+
+    const percent = 30 + ((i + 1) / total) * 70;
+    onProgress?.(percent);
   });
 
   return new Promise((resolve) => {
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => {
+      onProgress?.(100);
+      resolve();
+    };
   });
 }

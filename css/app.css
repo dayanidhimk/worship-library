@@ -127,3 +127,23 @@ body {
   color: #999;
   font-style: italic;
 }
+
+.ui-lock {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.ui-lock.hidden {
+  display: none;
+}
+
+.ui-lock-text {
+  font-size: 15px;
+  color: var(--fg);
+}

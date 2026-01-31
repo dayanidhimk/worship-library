@@ -9,6 +9,17 @@ const screens = {
   import: document.getElementById("screen-import")
 };
 
+const uiLock = document.getElementById("ui-lock");
+
+function lockUI(text = "Please wait…") {
+  uiLock.querySelector(".ui-lock-text").textContent = text;
+  uiLock.classList.remove("hidden");
+}
+
+function unlockUI() {
+  uiLock.classList.add("hidden");
+}
+
 function showScreen(name, push = true) {
   Object.values(screens).forEach(s => s.classList.add("hidden"));
   screens[name].classList.remove("hidden");
@@ -65,7 +76,7 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
 
   if (categoryId) {
     updateBtn.onclick = async () => {
-      updateBtn.textContent = "Updating...";
+      lockUI("Updating songs…");
       updateBtn.disabled = true;
 
       try {
@@ -73,18 +84,25 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
         if (!remoteCat) throw new Error("Remote category not found");
 
         const xml = await fetchCategoryXML(remoteCat.file);
-        await importCategoryFromXML(xml);
+
+        await importCategoryFromXML(xml, percent => {
+          updateBtn.textContent = `Updating… ${Math.round(percent)}%`;
+          lockUI(`Updating songs… ${Math.round(percent)}%`);
+        });
 
         updateBtn.textContent = "Updated ✓";
       } catch (err) {
         console.error(err);
         updateBtn.textContent = "Update Failed";
-      }
-
-      setTimeout(() => {
-        updateBtn.textContent = "Update Songs";
+        alert("Failed to update songs. Please try again.");
+      } finally {
+        unlockUI();
         updateBtn.disabled = false;
-      }, 1500);
+
+        setTimeout(() => {
+          updateBtn.textContent = "Update Songs";
+        }, 1500);
+      }
     };
   }
 
@@ -173,14 +191,28 @@ export async function renderImportScreen(onDone, push = true) {
     li.textContent = cat.name + status;
 
     li.onclick = async () => {
-      li.textContent = cat.name + " (Importing...)";
+      lockUI("Importing category…");
 
-      const xml = await fetchCategoryXML(cat.file);
-      await importCategoryFromXML(xml);
+      try {
+        li.textContent = `${cat.name} (Importing… 0%)`;
 
-      li.textContent = cat.name + " ✔";
+        const xml = await fetchCategoryXML(cat.file);
+
+        await importCategoryFromXML(xml, p => {
+          li.textContent = `${cat.name} (Importing… ${Math.round(p)}%)`;
+          lockUI(`Importing… ${Math.round(p)}%`);
+        });
+
+        li.textContent = `${cat.name} ✔`;
+      } catch (e) {
+        li.textContent = `${cat.name} ❌`;
+      } finally {
+        unlockUI();
+      }
     };
 
     list.appendChild(li);
   });
 }
+
+export { lockUI, unlockUI };
