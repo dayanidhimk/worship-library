@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Worship Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+
+<body>
+<header class="app-header">
+  <h1>Worship Library</h1>
+</header>
+
+<main class="app-body">
+
+  <!-- Categories -->
+  <section id="screen-categories" class="screen">
+    <button class="primary-btn" id="open-import">Import Categories</button>
+    <ul id="category-list" class="list"></ul>
+  </section>
+
+  <!-- Songs -->
+  <section id="screen-songs" class="screen hidden">
+    <div class="top-bar">
+      <button class="link-btn" id="back-to-categories">← Categories</button>
+      <h2 id="songs-title"></h2>
+    </div>
+    <button class="secondary-btn" id="update-category-btn">
+      Update Songs
+    </button>
+    <input id="search-box" placeholder="Search songs…" />
+    <ul id="song-list" class="list"></ul>
+  </section>
+
+  <!-- Song View -->
+  <section id="screen-song-view" class="screen hidden">
+    <div class="top-bar">
+      <button class="link-btn" id="back-to-songs">← Songs</button>
+      <h2 id="song-title"></h2>
+    </div>
+    <div id="lyrics-container"></div>
+  </section>
+
+  <!-- Import -->
+  <section id="screen-import" class="screen hidden">
+    <div class="top-bar">
+      <button class="link-btn" id="back-to-categories-from-import">← Back</button>
+      <h2>Import Categories</h2>
+    </div>
+    <ul id="import-list" class="list"></ul>
+  </section>
+
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

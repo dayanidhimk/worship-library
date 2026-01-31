@@ -1,0 +1,129 @@
+:root {
+  --bg: #f7f7f7;
+  --fg: #1e1e1e;
+  --muted: #777;
+  --card: #ffffff;
+  --accent: #4a6cf7;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.app-header {
+  padding: 14px;
+  text-align: center;
+  font-weight: 600;
+  background: var(--card);
+  border-bottom: 1px solid #ddd;
+}
+
+.app-body {
+  padding: 12px;
+}
+
+.screen {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.list li {
+  padding: 14px;
+  margin-bottom: 8px;
+  background: var(--card);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.list li:active {
+  opacity: 0.7;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 15px;
+}
+
+.link-btn {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#lyrics-container div {
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.secondary-btn {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+}
+
+#search-box {
+  /* Dynamic Width */
+  width: 90%; 
+  max-width: 600px; /* Prevents it from getting awkwardly long on desktops */
+  min-width: 280px; /* Ensures it stays usable on small phones */
+  
+  /* Layout & Spacing */
+  display: block;
+  margin: 20px auto;
+  padding: 12px 20px;
+  
+  /* Aesthetics */
+  font-size: 16px; /* Prevents iOS zoom-on-focus */
+  color: #333;
+  background: rgba(255, 255, 255, 0.9); /* Slightly translucent */
+  border: 1px solid #ddd;
+  border-radius: 25px; /* Rounded pill shape */
+  
+  /* Smooth Transitions */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  outline: none;
+}
+
+/* Interaction States */
+#search-box:focus {
+  border-color: #4A90E2; /* Subtle blue highlight */
+  box-shadow: 0 6px 12px rgba(74, 144, 226, 0.2);
+  background: #ffffff;
+}
+
+/* Placeholder Styling */
+#search-box::placeholder {
+  color: #999;
+  font-style: italic;
+}
