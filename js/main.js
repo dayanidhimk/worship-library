@@ -5,8 +5,31 @@ import {
   renderImportScreen
 } from "./ui.js";
 
+let isHandlingPopState = false;
 let currentCategory = null;
 let currentSongs = [];
+
+window.onpopstate = e => {
+  if (!e.state || !e.state.screen) return;
+
+  isHandlingPopState = true;
+
+  const screen = e.state.screen;
+
+  if (screen === "categories") {
+    renderCategories(onCategorySelect, false);
+  }
+
+  if (screen === "songs") {
+    renderSongList(currentCategory, onSongSelect, false);
+  }
+
+  if (screen === "import") {
+    renderCategories(onCategorySelect, false);
+  }
+
+  isHandlingPopState = false;
+};
 
 document.getElementById("back-to-categories").onclick = () => {
   renderCategories(onCategorySelect);
@@ -35,12 +58,13 @@ document.getElementById("open-import").onclick = () => {
 
 function onCategorySelect(categoryId) {
   currentCategory = categoryId;
-  renderSongList(categoryId, onSongSelect);
+  renderSongList(categoryId, onSongSelect, true);
 }
 
 function onSongSelect(song) {
-  renderSongView(song);
+  renderSongView(song, true);
 }
 
 // App start
-renderCategories(onCategorySelect);
+history.replaceState({ screen: "categories" }, "");
+renderCategories(onCategorySelect, false);

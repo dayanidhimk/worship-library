@@ -9,17 +9,21 @@ const screens = {
   import: document.getElementById("screen-import")
 };
 
-function showScreen(name) {
+function showScreen(name, push = true) {
   Object.values(screens).forEach(s => s.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+
+  if (push) {
+    history.pushState({ screen: name }, "");
+  }
 }
 
 /* ==========================
    CATEGORY SCREEN
 ========================== */
 
-export async function renderCategories(onSelect) {
-  showScreen("categories");
+export async function renderCategories(onSelect, push = true) {
+  showScreen("categories", push);
 
   const list = document.getElementById("category-list");
   list.innerHTML = "";
@@ -44,8 +48,8 @@ export async function renderCategories(onSelect) {
    SONG LIST SCREEN
 ========================== */
 
-export async function renderSongList(categoryId, onSelectSong) {
-  showScreen("songs");
+export async function renderSongList(categoryId, onSelectSong, push = true) {
+  showScreen("songs", push);
 
   const title = document.getElementById("songs-title");
   const list = document.getElementById("song-list");
@@ -119,8 +123,8 @@ export async function renderSongList(categoryId, onSelectSong) {
    SONG VIEW SCREEN
 ========================== */
 
-export function renderSongView(song) {
-  showScreen("songView");
+export function renderSongView(song, push = true) {
+  showScreen("songView", push);
 
   document.getElementById("song-title").textContent = song.name;
 
@@ -147,8 +151,8 @@ export function renderSongView(song) {
    IMPORT SCREEN
 ========================== */
 
-export async function renderImportScreen(onDone) {
-  showScreen("import");
+export async function renderImportScreen(onDone, push = true) {
+  showScreen("import", push);
 
   const list = document.getElementById("import-list");
   list.innerHTML = "Loading...";
