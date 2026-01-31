@@ -1,12 +1,15 @@
-import { getAllCategories, getAllSongs, getSongsByCategory, searchSongsGlobal, searchSongsByCategory } from "./queries.js";
+import { getAllCategories, getAllSongs, getSongsByCategory, searchSongsGlobal, searchSongsByCategory, getSongById } from "./queries.js";
 import { fetchRemoteIndex, fetchCategoryXML, getRemoteCategoryById } from "./remote.js";
 import { importCategoryFromXML } from "./importer.js";
+import { getSetlist, removeFromSetlist, addToSetlist } from "./setlist.js";
+import { t } from "./lang.js";
 
 const screens = {
   categories: document.getElementById("screen-categories"),
   songs: document.getElementById("screen-songs"),
   songView: document.getElementById("screen-song-view"),
-  import: document.getElementById("screen-import")
+  import: document.getElementById("screen-import"),
+  setlist: document.getElementById("screen-setlist")
 };
 
 const uiLock = document.getElementById("ui-lock");
@@ -43,7 +46,7 @@ export async function renderCategories(onSelect, push = true) {
 
   // All Songs option
   const allLi = document.createElement("li");
-  allLi.textContent = "All Songs";
+  allLi.textContent = t("songs");
   allLi.onclick = () => onSelect(null);
   list.appendChild(allLi);
 
@@ -149,6 +152,25 @@ export function renderSongView(song, push = true) {
   const container = document.getElementById("lyrics-container");
   container.innerHTML = "";
 
+  const addBtn = document.createElement("button");
+  addBtn.className = "secondary-btn";
+  addBtn.textContent = t("add_to_setlist");
+
+  addBtn.onclick = async () => {
+    const added = await addToSetlist(song.id);
+
+    if (!added) {
+      alert(t("already_in_setlist"));
+      return;
+    }
+
+    alert(t("added_to_setlist"));
+    addBtn.disabled = true;
+  };
+
+
+  container.prepend(addBtn);
+  
   function renderLyrics(raw, font) {
     const div = document.createElement("div");
     div.style.fontFamily = font || "inherit";
@@ -213,6 +235,49 @@ export async function renderImportScreen(onDone, push = true) {
 
     list.appendChild(li);
   });
+}
+
+/* ==========================
+   SETLIST SCREEN
+========================== */
+
+export async function renderSetlist() {
+  showScreen("setlist");
+
+  const list = document.getElementById("setlist-list");
+  list.innerHTML = "";
+
+  const items = await getSetlist();
+
+  if (items.length === 0) {
+    list.innerHTML = "<li class='muted'>No songs in" + t("setlist") + "</li>";
+    return;
+  }
+
+  for (const item of items) {
+    const song = await getSongById(item.songId);
+    if (!song) continue;
+
+    const li = document.createElement("li");
+    li.className = "setlist-item";
+
+    const title = document.createElement("span");
+    title.textContent = song.name;
+    title.onclick = () => renderSongView(song);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = t("remove_song");
+    removeBtn.className = "remove-btn";
+    removeBtn.onclick = async (e) => {
+      e.stopPropagation();
+      await removeFromSetlist(item.id);
+      renderSetlist();
+    };
+
+    li.appendChild(title);
+    li.appendChild(removeBtn);
+    list.appendChild(li);
+  }
 }
 
 export { lockUI, unlockUI };

@@ -147,3 +147,30 @@ body {
   font-size: 15px;
   color: var(--fg);
 }
+
+.remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  margin-left: 40px;
+  
+  background: #ff7777;
+  color: #000;
+  border: none;
+  border-radius: 15px;
+  
+  font-size: inherit - 3px;
+  cursor: pointer;
+  transition: 0.2s;
+  vertical-align: middle;
+}
+
+.remove-btn:hover {
+  background: #ff0000;
+  color: white;
+}
+
+.remove-btn:active {
+  transform: scale(0.9);
+}

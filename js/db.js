@@ -1,5 +1,5 @@
 const DB_NAME = "lyricsDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbInstance = null;
 
@@ -25,6 +25,14 @@ export function openDB() {
         store.createIndex("categoryId", "categoryId", { unique: false });
         store.createIndex("name", "name", { unique: false });
         store.createIndex("searchIndex", "searchIndex", { unique: false });
+      }
+
+      // Setlist store
+      if (!db.objectStoreNames.contains("setlist")) {
+        const store = db.createObjectStore("setlist", {
+          keyPath: "id"
+        });
+        store.createIndex("order", "order", { unique: false });
       }
     };
 

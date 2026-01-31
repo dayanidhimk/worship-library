@@ -14,21 +14,21 @@
 
 <body>
 <header class="app-header">
-  <h1>Worship Library</h1>
+  <h1 id="app-title"></h1>
 </header>
 
 <main class="app-body">
 
   <!-- Categories -->
   <section id="screen-categories" class="screen">
-    <button class="primary-btn" id="open-import">Import Categories</button>
+    <button class="primary-btn" id="open-import"></button>
     <ul id="category-list" class="list"></ul>
   </section>
 
   <!-- Songs -->
   <section id="screen-songs" class="screen hidden">
     <div class="top-bar">
-      <button class="link-btn" id="back-to-categories">← Categories</button>
+      <button class="link-btn" id="back-to-categories"></button>
       <h2 id="songs-title"></h2>
     </div>
     <button class="secondary-btn" id="update-category-btn">
@@ -41,7 +41,7 @@
   <!-- Song View -->
   <section id="screen-song-view" class="screen hidden">
     <div class="top-bar">
-      <button class="link-btn" id="back-to-songs">← Songs</button>
+      <button class="link-btn" id="back-to-songs"></button>
       <h2 id="song-title"></h2>
     </div>
     <div id="lyrics-container"></div>
@@ -50,11 +50,24 @@
   <!-- Import -->
   <section id="screen-import" class="screen hidden">
     <div class="top-bar">
-      <button class="link-btn" id="back-to-categories-from-import">← Back</button>
-      <h2>Import Categories</h2>
+      <button class="link-btn" id="back-to-categories-from-import"></button>
+      <h2 id="import-categories"></h2>
     </div>
     <ul id="import-list" class="list"></ul>
   </section>
+
+  <section id="screen-setlist" class="screen hidden">
+    <div class="top-bar">
+      <button class="link-btn" id="back-to-categories-from-setlist"></button>
+      <h2 id="setlist"></h2>
+    </div>
+
+    <button class="secondary-btn" id="clear-setlist"></button>
+
+    <ul id="setlist-list" class="list"></ul>
+  </section>
+
+  <button class="secondary-btn" id="open-setlist"></button>
 
 </main>
 

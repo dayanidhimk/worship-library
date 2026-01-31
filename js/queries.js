@@ -100,3 +100,15 @@ export async function searchSongsByCategory(categoryId, query) {
     };
   });
 }
+
+// Fetching songs through the songId
+export async function getSongById(songId) {
+  const db = await openDB();
+  const tx = db.transaction("songs", "readonly");
+  const store = tx.objectStore("songs");
+
+  return new Promise(resolve => {
+    const req = store.get(songId);
+    req.onsuccess = () => resolve(req.result || null);
+  });
+}
