@@ -13,6 +13,7 @@ const screens = {
 };
 
 let currentScreen = "categories";
+let songViewSource = "categories"; // or "setlist"
 
 const uiLock = document.getElementById("ui-lock");
 
@@ -29,13 +30,21 @@ export function getCurrentScreen() {
   return currentScreen;
 }
 
-function showScreen(name, push = true) {
+function showScreen(name, push = true, state = {}) {
   Object.values(screens).forEach(s => s.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+
   currentScreen = name;
 
   if (push) {
-    history.pushState({ screen: name }, "");
+    history.pushState(
+      {
+        screen: name,
+        homeTab: state.homeTab || null,
+        from: state.from || null
+      },
+      ""
+    );
   }
 }
 
@@ -125,7 +134,10 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
     items.forEach(song => {
       const li = document.createElement("li");
       li.textContent = song.name;
-      li.onclick = () => onSelectSong(song);
+      li.onclick = () => {
+        songViewSource = "categories";
+        onSelectSong(song);
+      };
       list.appendChild(li);
     });
   }
@@ -152,7 +164,10 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
 ========================== */
 
 export function renderSongView(song, push = true) {
-  showScreen("songView", push);
+  showScreen("songView", push, {
+    from: songViewSource,
+    homeTab: songViewSource
+  });
 
   document.getElementById("song-title").textContent = song.name;
 
@@ -250,8 +265,8 @@ export async function renderImportScreen(onDone, push = true) {
    SETLIST SCREEN
 ========================== */
 
-export async function renderSetlist() {
-  showScreen("setlist");
+export async function renderSetlist(push = true) {
+  showScreen("setlist", push);
 
   const list = document.getElementById("setlist-list");
   list.innerHTML = "";
@@ -259,7 +274,7 @@ export async function renderSetlist() {
   const items = await getSetlist();
 
   if (items.length === 0) {
-    list.innerHTML = "<li class='muted'>No songs in" + t("setlist") + "</li>";
+    list.innerHTML = "<li class='muted'>No songs in " + t("setlist") + "</li>";
     return;
   }
 
@@ -272,7 +287,10 @@ export async function renderSetlist() {
 
     const title = document.createElement("span");
     title.textContent = song.name;
-    title.onclick = () => renderSongView(song);
+    title.onclick = () => {
+      songViewSource = "setlist";
+      renderSongView(song, true);
+    };
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = t("remove_song");
@@ -326,6 +344,16 @@ export async function showToast(message, duration = 2000) {
   setTimeout(() => {
     toast.classList.add("hidden");
   }, duration);
+}
+
+export function setActiveTab(tab) {
+  document
+    .querySelectorAll(".home-tabs .tab")
+    .forEach(el => el.classList.remove("active"));
+
+  document
+    .querySelector(`#tab-${tab}`)
+    ?.classList.add("active");
 }
 
 export { lockUI, unlockUI };

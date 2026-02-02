@@ -20,6 +20,11 @@
   <h1 id="app-title"></h1>
 </header>
 
+<nav class="home-tabs">
+  <button id="tab-categories" class="tab active"></button>
+  <button id="tab-setlist" class="tab"></button>
+</nav>
+
 <main class="app-body">
 
   <!-- Categories -->
@@ -60,17 +65,15 @@
   </section>
 
   <section id="screen-setlist" class="screen hidden">
-    <div class="top-bar">
+    <!-- <div class="top-bar">
       <button class="link-btn" id="back-to-categories-from-setlist"></button>
       <h2 id="setlist"></h2>
-    </div>
+    </div> -->
 
-    <button class="secondary-btn" id="clear-setlist"></button>
+    <button class="primary-btn" id="clear-setlist"></button>
 
     <ul id="setlist-list" class="list"></ul>
   </section>
-
-  <button class="secondary-btn" id="open-setlist"></button>
 
 </main>
 <div id="toast" class="toast hidden"></div>
