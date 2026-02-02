@@ -6,18 +6,19 @@ import {
   renderSetlist
 } from "./ui.js";
 import { clearSetlist } from "./setlist.js";
-import { getCurrentScreen, showToast } from "./ui.js";
+import { getCurrentScreen, showToast, setActiveTab } from "./ui.js";
 import { t } from "./lang.js";
 
 document.getElementById("app-title").textContent = t("app_name");
-document.getElementById("open-setlist").textContent = t("setlist");
+document.getElementById("tab-categories").textContent = t("categories");
+document.getElementById("tab-setlist").textContent = t("setlist");
 document.getElementById("open-import").textContent = t("import_category");
 document.getElementById("back-to-categories").textContent = t("back_to_categories");
 document.getElementById("back-to-songs").textContent = t("back_to_songs");
 document.getElementById("back-to-categories-from-import").textContent = t("back");
 document.getElementById("import-categories").textContent = t("import_categories");
-document.getElementById("back-to-categories-from-setlist").textContent = t("back");
-document.getElementById("setlist").textContent = t("setlist");
+// document.getElementById("back-to-categories-from-setlist").textContent = t("back");
+// document.getElementById("setlist").textContent = t("setlist");
 document.getElementById("clear-setlist").textContent = t("clear_setlist");
 let isHandlingPopState = false;
 let currentCategory = null;
@@ -27,7 +28,6 @@ let lastBackPressTime = 0;
 
 window.onpopstate = e => {
   if (isHandlingPopState) return;
-
   isHandlingPopState = true;
 
   const current = getCurrentScreen();
@@ -52,24 +52,60 @@ window.onpopstate = e => {
     isHandlingPopState = false;
     return;
   }
-
-  // Normal navigation (NOT home)
-  if (!e.state || !e.state.screen) {
+  
+  const state = e.state;
+  if (!state || !state.screen) {
     isHandlingPopState = false;
     return;
   }
 
-  const target = e.state.screen;
+  // Restore tab FIRST
+  if (state.homeTab) {
+    setActiveTab(state.homeTab);
+  }
 
-  if (target === "songs") {
-    renderSongList(currentCategory, onSongSelect, false);
-  } else if (target === "categories") {
-    renderCategories(onCategorySelect, false);
-  } else if (target === "import") {
-    renderCategories(onCategorySelect, false);
+  switch (state.screen) {
+    case "songView":
+      // Should not really happen (song object not serializable)
+      // So we fallback correctly
+      if (state.from === "setlist") {
+        renderSetlist(false);
+        setActiveTab("setlist");
+      } else {
+        renderCategories(onCategorySelect, false);
+        setActiveTab("categories");
+      }
+      break;
+
+    case "setlist":
+      renderSetlist(false);
+      setActiveTab("setlist");
+      break;
+
+    case "categories":
+      renderCategories(onCategorySelect, false);
+      setActiveTab("categories");
+      break;
+
+    case "songs":
+      renderSongList(currentCategory, onSongSelect, false);
+      setActiveTab("categories");
+      break;
+
+    default:
+      renderCategories(onCategorySelect, false);
+      setActiveTab("categories");
   }
 
   isHandlingPopState = false;
+};
+
+document.getElementById("tab-categories").onclick = () => {
+  switchHomeTab("categories");
+};
+
+document.getElementById("tab-setlist").onclick = () => {
+  switchHomeTab("setlist");
 };
 
 document.getElementById("back-to-categories").onclick = () => {
@@ -84,17 +120,14 @@ document.getElementById("back-to-categories-from-import").onclick = () => {
   renderCategories(onCategorySelect);
 };
 
-document.getElementById("open-setlist").onclick = () => {
-  renderSetlist();
-};
-
-document.getElementById("back-to-categories-from-setlist").onclick = () => {
-  renderCategories(onCategorySelect);
-};
+// document.getElementById("back-to-categories-from-setlist").onclick = () => {
+//   renderCategories(onCategorySelect);
+// };
 
 document.getElementById("clear-setlist").onclick = async () => {
   await clearSetlist();
   renderSetlist();
+  setActiveTab("setlist");
 };
 
 // // TEMP: long press / keyboard shortcut
@@ -110,6 +143,18 @@ document.getElementById("open-import").onclick = () => {
   renderImportScreen(() => renderCategories(onCategorySelect));
 };
 
+function switchHomeTab(tab) {
+  setActiveTab(tab);
+
+  if (tab === "categories") {
+    renderCategories(onCategorySelect, true);
+    history.replaceState({ screen: "categories", homeTab: "categories" }, "");
+  } else {
+    renderSetlist(true);
+    history.replaceState({ screen: "setlist", homeTab: "setlist" }, "");
+  }
+}
+
 function onCategorySelect(categoryId) {
   currentCategory = categoryId;
   renderSongList(categoryId, onSongSelect, true);
@@ -121,4 +166,4 @@ function onSongSelect(song) {
 
 // App start
 history.replaceState({ screen: "categories" }, "");
-renderCategories(onCategorySelect, false);
+switchHomeTab("categories");
