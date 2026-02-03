@@ -36,6 +36,10 @@
   /* Shadows */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.15);
+
+  /* Special Colors */
+  --ytube-link: #ff0000;
+  --song-key: #3c30e2;
 }
 
 /* =========================================================
@@ -271,4 +275,37 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+}
+
+/* =========================================================
+   SONG META INFO
+========================================================= */
+.song-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 100px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+}
+
+.song-meta-item {
+  color: var(--color-fg);
+}
+
+.key{
+    color: var(--song-key);
+    font-weight: 600;
+}
+
+.song-meta-link {
+  color: var(--ytube-link);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.song-meta-link:active {
+  opacity: 0.7;
 }

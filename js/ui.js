@@ -174,6 +174,36 @@ export function renderSongView(song, push = true) {
   const container = document.getElementById("lyrics-container");
   container.innerHTML = "";
 
+   /* ==========================
+     SONG META (Key, YouTube)
+  ========================== */
+  const metaBar = document.createElement("div");
+  metaBar.className = "song-meta";
+
+  if (song.key) {
+    const keyEl = document.createElement("span");
+    keyEl.className = "song-meta-item key";
+    keyEl.textContent = `🎹 ${t("key")}: ${song.key}`;
+    metaBar.appendChild(keyEl);
+  }
+
+  if (song.youtube) {
+    const yt = document.createElement("a");
+    yt.className = "song-meta-item song-meta-link";
+    yt.href = song.youtube;
+    yt.target = "_blank";
+    yt.rel = "noopener";
+    yt.textContent = `▶︎ ${t("youtube")}`;
+    metaBar.appendChild(yt);
+  }
+
+  if (metaBar.children.length > 0) {
+    container.appendChild(metaBar);
+  }
+
+  /* ==========================
+     ADD TO SCHEDULE BUTTON
+  ========================== */
   const addBtn = document.createElement("button");
   addBtn.className = "secondary-btn";
   addBtn.textContent = t("add_to_setlist");
