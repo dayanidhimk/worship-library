@@ -2,44 +2,65 @@
    DESIGN TOKENS (Theme Variables)
 ========================================================= */
 :root {
-  /* Core Colors */
-  --color-bg: #f7f7f7;
-  --color-fg: #1e1e1e;
-  --color-muted: #777;
+  /* ===============================
+     Core Colors (Modern & Calm)
+  =============================== */
+  --color-bg: #f2f4f8;              /* Soft cool grey */
   --color-surface: #ffffff;
-  --color-accent: #0046FF;
-  --color-danger: #ff4d4d;
+  --color-fg: #1b1f24;              /* Slightly softer than pure black */
+  --color-muted: #6b7280;           /* Neutral grey */
 
-  /* Button Colors */
-  --btn-primary-bg: var(--color-accent);
+  /* Accent (More premium blue) */
+  --color-accent: #3b5cff;          /* Rich indigo-blue */
+  --color-accent-soft: #e8ecff;     /* Accent wash */
+
+  /* Danger */
+  --color-danger: #e54848;
+
+  /* ===============================
+     Buttons
+  =============================== */
+  --btn-primary-bg: linear-gradient(
+    135deg,
+    #3b5cff,
+    #2f49d1
+  );
   --btn-primary-fg: #ffffff;
 
   --btn-secondary-bg: transparent;
-  --btn-secondary-border: var(--color-accent);
-  --btn-secondary-fg: var(--color-accent);
+  --btn-secondary-border: #3b5cff;
+  --btn-secondary-fg: #3b5cff;
 
-  --btn-danger-bg: #ff7777;
-  --btn-danger-bg-hover: #ff0000;
-  --btn-danger-fg: #000;
+  --btn-danger-bg: #ff6b6b;
+  --btn-danger-bg-hover: #e54848;
+  --btn-danger-fg: #ffffff;
   --btn-danger-fg-hover: #ffffff;
 
-  /* Input */
-  --input-bg: rgba(255, 255, 255, 0.9);
-  --input-border: #ddd;
-  --input-focus-border: #4a90e2;
+  /* ===============================
+     Inputs
+  =============================== */
+  --input-bg: #ffffff;
+  --input-border: #e5e7eb;
+  --input-focus-border: #3b5cff;
 
-  /* Radius */
+  /* ===============================
+     Radius
+  =============================== */
   --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 25px;
+  --radius-md: 12px;
+  --radius-lg: 28px;
 
-  /* Shadows */
-  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.15);
+  /* ===============================
+     Shadows (Depth!)
+  =============================== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.12);
 
-  /* Special Colors */
-  --ytube-link: #ff0000;
-  --song-key: #3c30e2;
+  /* ===============================
+     Song Meta
+  =============================== */
+  --ytube-link: #e11d48;
+  --song-key: #4338ca;
 }
 
 /* =========================================================
@@ -59,6 +80,7 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden; /* Prevent full-page scrolling */
+  letter-spacing: 0.2px;
 }
 
 .hidden {
@@ -74,9 +96,11 @@ body {
   font-weight: 600;
   background: var(--color-surface);
   border-bottom: 1px solid var(--input-border);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
   flex-shrink: 0; /* Prevent collapsing */
   background: var(--color-surface);
   z-index: 10;
+  letter-spacing: 0.5px;
 }
 
 .app-body {
@@ -100,6 +124,7 @@ body {
   display: flex;
   background: var(--color-surface);
   border-bottom: 1px solid var(--input-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   flex-shrink: 0; /* Prevent collapsing */
   background: var(--color-surface);
   z-index: 10;
@@ -114,6 +139,7 @@ body {
   cursor: pointer;
   color: var(--color-muted);
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .tab.active {
@@ -133,15 +159,17 @@ body {
 
 .list li {
   padding: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   background: var(--color-surface);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: 0.15s;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .list li:active {
-  opacity: 0.7;
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
 }
 
 /* =========================================================
@@ -154,7 +182,13 @@ body {
   border: none;
   background: var(--btn-primary-bg);
   color: var(--btn-primary-fg);
-  font-size: 15px;
+  font-size: 15px;box-shadow: 0 6px 14px rgba(59, 92, 255, 0.35);
+  font-weight: 600;
+}
+
+.primary-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(59, 92, 255, 0.3);
 }
 
 .secondary-btn {
@@ -163,11 +197,18 @@ body {
   padding: 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--btn-secondary-border);
-  background: var(--btn-secondary-bg);
+  background: var(--color-accent-soft);
+  /* box-shadow: 0 2px 5px rgba(59, 92, 255, 0.3); */
+  border-color: transparent;
+  font-weight: 600;
   color: var(--btn-secondary-fg);
   font-size: 14px;
 }
 
+.secondary-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(59, 92, 255, 0.3);
+}
 .link-btn {
   border: none;
   background: none;
@@ -216,7 +257,7 @@ body {
 
   font-size: 16px;
   color: var(--color-fg);
-  background: var(--input-bg);
+  background: var(--color-surface);
   border: 1px solid var(--input-border);
   border-radius: var(--radius-lg);
   outline: none;
@@ -227,7 +268,8 @@ body {
 
 #search-box:focus {
   border-color: var(--input-focus-border);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 0 0 3px var(--color-accent-soft),
+              var(--shadow-md);
   background: var(--color-surface);
 }
 
@@ -270,9 +312,9 @@ body {
 
 .toast {
   position: fixed;
-  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: rgba(0, 0, 0, 0.85);
   color: white;
   padding: 10px 16px;
@@ -280,7 +322,7 @@ body {
   font-size: 14px;
   z-index: 10000;
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .toast.hidden {
@@ -304,7 +346,12 @@ body {
   gap: 100px;
   margin-bottom: 12px;
   padding: 8px 12px;
-  background: var(--color-surface);
+  background: linear-gradient(
+    180deg,
+    #ffffff,
+    #f8fafc
+  );
+  box-shadow: var(--shadow-sm);
   border-radius: var(--radius-md);
   font-size: 14px;
 }
@@ -315,13 +362,13 @@ body {
 
 .key{
     color: var(--song-key);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .song-meta-link {
   color: var(--ytube-link);
-  text-decoration: none;
-  font-weight: 500;
+  /* text-decoration: none;
+  font-weight: 500; */
 }
 
 .song-meta-link:active {
