@@ -197,10 +197,46 @@ export function renderSongView(song, push = true) {
     metaBar.appendChild(yt);
   }
 
+  // --- FONT SIZE CONTROLS ---
+  const fontCtrl = document.createElement("div");
+  fontCtrl.className = "font-controls";
+
+  const decBtn = document.createElement("button");
+  decBtn.textContent = "A−";
+  decBtn.className = "font-btn";
+
+  const incBtn = document.createElement("button");
+  incBtn.textContent = "A+";
+  incBtn.className = "font-btn";
+
+  fontCtrl.appendChild(decBtn);
+  fontCtrl.appendChild(incBtn);
+  metaBar.appendChild(fontCtrl);
+
+  let currentFontSize = 1; // em
+
+  function applyFontSize() {
+    container.querySelectorAll(".lyrics-text").forEach(el => {
+      el.style.fontSize = `${currentFontSize}em`;
+    });
+  }
+
+  incBtn.onclick = () => {
+    currentFontSize = Math.min(currentFontSize + 0.1, 1.6);
+    applyFontSize();
+  };
+
+  decBtn.onclick = () => {
+    currentFontSize = Math.max(currentFontSize - 0.1, 0.8);
+    applyFontSize();
+  };
+
+
+  
   if (metaBar.children.length > 0) {
     container.appendChild(metaBar);
   }
-
+  
   /* ==========================
      ADD TO SCHEDULE BUTTON
   ========================== */
@@ -225,6 +261,7 @@ export function renderSongView(song, push = true) {
   
   function renderLyrics(raw, font) {
     const div = document.createElement("div");
+    div.className = "lyrics-text";
     const resolved = resolveFont(font);
     div.style.fontFamily = resolved.family;
     div.style.fontWeight = resolved.weight;
