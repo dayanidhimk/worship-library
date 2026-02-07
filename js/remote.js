@@ -17,3 +17,7 @@ export async function getRemoteCategoryById(categoryId) {
   const index = await fetchRemoteIndex();
   return index.find(c => c.id === categoryId);
 }
+
+export async function getTestUrl() {
+  return BASE_URL+"index.json";
+}
