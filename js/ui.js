@@ -642,3 +642,7 @@ function resetIndicator(el) {
   el.style.transform = "translateY(-50%) translateX(0)";
   el.style.opacity = 0;
 }
+
+export function getSongViewSource() {
+  return songViewSource;
+}

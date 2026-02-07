@@ -6,7 +6,7 @@ import {
   renderSetlist
 } from "./ui.js";
 import { clearSetlist } from "./setlist.js";
-import { getCurrentScreen, showToast, setActiveTab } from "./ui.js";
+import { getCurrentScreen, showToast, setActiveTab, getSongViewSource } from "./ui.js";
 import { t } from "./lang.js";
 
 document.getElementById("app-title").textContent = t("app_name");
@@ -113,7 +113,15 @@ document.getElementById("back-to-categories").onclick = () => {
 };
 
 document.getElementById("back-to-songs").onclick = () => {
-  renderSongList(currentCategory, onSongSelect);
+  const source = getSongViewSource();
+
+  if (source === "setlist") {
+    renderSetlist(true);
+    setActiveTab("setlist");
+  } else {
+    renderSongList(currentCategory, onSongSelect, true);
+    setActiveTab("categories");
+  }
 };
 
 document.getElementById("back-to-categories-from-import").onclick = () => {
