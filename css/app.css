@@ -479,3 +479,36 @@ body {
     transform 0.15s ease-out,
     opacity 0.15s ease-out;
 }
+
+/* =========================================================
+   SONG LIST – QUICK ADD
+========================================================= */
+
+.song-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.song-title {
+  flex: 1;
+}
+
+/* Small + button */
+.song-add-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.song-add-btn:active {
+  background: rgba(0, 70, 255, 0.12);
+  transform: scale(0.9);
+}

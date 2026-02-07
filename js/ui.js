@@ -162,12 +162,36 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
     list.innerHTML = "";
     items.forEach(song => {
       const li = document.createElement("li");
-      li.textContent = song.name;
-      li.onclick = () => {
+      li.className = "song-list-item";
+
+      const title = document.createElement("span");
+      title.className = "song-title";
+      title.textContent = song.name;
+
+      title.onclick = () => {
         songViewSource = "categories";
         currentSongIndex = navigationQueue.indexOf(song.id);
         onSelectSong(song);
       };
+
+      const addBtn = document.createElement("button");
+      addBtn.className = "song-add-btn";
+      addBtn.textContent = "＋";
+
+      addBtn.onclick = async (e) => {
+        e.stopPropagation(); // 🔑 prevent opening song view
+
+        const added = await addToSetlist(song.id);
+        if (!added) {
+          showToast(t("already_in_setlist"));
+          return;
+        }
+
+        showToast(t("added_to_setlist"));
+      };
+
+      li.appendChild(title);
+      li.appendChild(addBtn);
       list.appendChild(li);
     });
   }
