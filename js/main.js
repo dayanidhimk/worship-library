@@ -6,7 +6,7 @@ import {
   renderSetlist
 } from "./ui.js";
 import { clearSetlist } from "./setlist.js";
-import { getCurrentScreen, showToast, setActiveTab, } from "./ui.js";
+import { getCurrentScreen, showToast, setActiveTab } from "./ui.js";
 import { t } from "./lang.js";
 
 document.getElementById("app-title").textContent = t("app_name");
