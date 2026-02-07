@@ -6,8 +6,11 @@ import {
   renderSetlist
 } from "./ui.js";
 import { clearSetlist } from "./setlist.js";
-import { getCurrentScreen, showToast, setActiveTab } from "./ui.js";
+import { getCurrentScreen, showToast, setActiveTab, getSongViewSource } from "./ui.js";
 import { t } from "./lang.js";
+import { fetchRemoteIndex, fetchCategoryXML, getTestUrl } from "./remote.js";
+import { importCategoryFromXML } from "./importer.js";
+import { getAllCategories } from "./queries.js";
 
 document.getElementById("app-title").textContent = t("app_name");
 document.getElementById("tab-categories").textContent = t("categories");
@@ -113,7 +116,15 @@ document.getElementById("back-to-categories").onclick = () => {
 };
 
 document.getElementById("back-to-songs").onclick = () => {
-  renderSongList(currentCategory, onSongSelect);
+  const source = getSongViewSource();
+
+  if (source === "setlist") {
+    renderSetlist(true);
+    setActiveTab("setlist");
+  } else {
+    renderSongList(currentCategory, onSongSelect, true);
+    setActiveTab("categories");
+  }
 };
 
 document.getElementById("back-to-categories-from-import").onclick = () => {
@@ -164,6 +175,65 @@ function onSongSelect(song) {
   renderSongView(song, true);
 }
 
+async function hasGoodInternet(timeout = 2000) {
+  // 1. Basic offline check
+  if (!navigator.onLine) return false;
+
+  // 2. Speed + reachability check (same-origin)
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  const start = performance.now();
+
+  try {
+    const res = await fetch("ping.txt", {
+      cache: "no-store",
+      signal: controller.signal
+    });
+
+    clearTimeout(timer);
+
+    if (!res.ok) return false;
+
+    const duration = performance.now() - start;
+
+    // 3. Speed threshold (tweak if needed)
+    return duration < 800; // ms
+  } catch (e) {
+    return false;
+  }
+}
+
+async function autoSyncCategoriesOnStartup() {
+  const goodInternet = await hasGoodInternet();
+
+  if (!goodInternet) {
+    console.log("Skipping auto sync (offline / slow internet)");
+    return;
+  }
+
+  console.log("Good internet detected — auto syncing categories");
+
+  try {
+    const remoteCategories = await fetchRemoteIndex();
+    const localCategories = await getAllCategories();
+    const localIds = new Set(localCategories.map(c => c.id));
+
+    for (const cat of remoteCategories) {
+      const xml = await fetchCategoryXML(cat.file);
+      await importCategoryFromXML(xml);
+    }
+
+    console.log("Auto sync completed");
+  } catch (err) {
+    console.warn("Auto sync failed:", err);
+  }
+}
+
 // App start
 history.replaceState({ screen: "categories" }, "");
 switchHomeTab("categories");
+// Background auto sync (non-blocking)
+setTimeout(() => {
+  autoSyncCategoriesOnStartup();
+}, 1000);
