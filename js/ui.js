@@ -36,6 +36,12 @@ function showScreen(name, push = true, state = {}) {
 
   currentScreen = name;
 
+  // RESET SCROLL POSITION
+  const appBody = document.querySelector(".app-body");
+  if (appBody) {
+    appBody.scrollTop = 0;
+  }
+
   if (push) {
     history.pushState(
       {
@@ -260,6 +266,40 @@ export function renderSongView(song, push = true) {
   container.prepend(addBtn);
   
   function renderLyrics(raw, font) {
+    if (!raw) return;
+
+    // Normalize slides & line breaks
+    let text = raw
+      .replace(/<slide>/gi, "\n\n")
+      .replace(/<BR>/gi, "\n");
+
+    // Split into lines, trim each line
+    const lines = text
+      .split("\n")
+      .map(line => line.trim());
+
+    // Remove consecutive empty lines
+    const cleanedLines = [];
+    let previousEmpty = false;
+
+    for (const line of lines) {
+      if (line === "") {
+        if (!previousEmpty) {
+          cleanedLines.push("");
+          previousEmpty = true;
+        }
+      } else {
+        cleanedLines.push(line);
+        previousEmpty = false;
+      }
+    }
+
+    // Join back & trim start/end whitespace
+    const finalText = cleanedLines.join("\n").trim();
+
+    // Don’t render empty lyrics blocks
+    if (!finalText) return;
+    
     const div = document.createElement("div");
     div.className = "lyrics-text";
     const resolved = resolveFont(font);
