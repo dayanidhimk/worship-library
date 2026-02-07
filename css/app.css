@@ -472,3 +472,10 @@ body {
 .swipe-indicator.visible {
   opacity: 1;
 }
+
+.lyrics-fade {
+  opacity: 0.6;
+  transition: 
+    transform 0.15s ease-out,
+    opacity 0.15s ease-out;
+}

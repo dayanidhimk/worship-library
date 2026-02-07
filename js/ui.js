@@ -29,6 +29,17 @@ const rightIndicator = document.getElementById("swipe-right-indicator");
 
 const uiLock = document.getElementById("ui-lock");
 
+let hapticTriggered = false;
+
+function vibrateOnce() {
+  if (hapticTriggered) return;
+
+  if (navigator.vibrate) {
+    navigator.vibrate(15); // subtle tap
+  }
+  hapticTriggered = true;
+}
+
 function lockUI(text = "Please wait…") {
   uiLock.querySelector(".ui-lock-text").textContent = text;
   uiLock.classList.remove("hidden");
@@ -531,15 +542,19 @@ function onTouchStart(e) {
   touchStartX = e.touches[0].clientX;
   touchCurrentX = touchStartX;
   activeDirection = null;
+  hapticTriggered = false;
 }
 
 function onTouchMove(e) {
+  const lyrics = document.querySelectorAll(".lyrics-text");
+
   touchCurrentX = e.touches[0].clientX;
   const deltaX = touchCurrentX - touchStartX;
 
-  if (Math.abs(deltaX) < 10) return;
+  if (Math.abs(deltaX) < 20) return;
 
   if (deltaX > 0) {
+    lyrics.forEach(el => el.classList.add("lyrics-fade"));
     // Swiping RIGHT → show LEFT arrow
     if (activeDirection !== "right") {
       // Direction changed → kill right indicator immediately
@@ -548,6 +563,7 @@ function onTouchMove(e) {
     }
     showIndicator(leftIndicator, deltaX);
   } else {
+    lyrics.forEach(el => el.classList.add("lyrics-fade"));
     // Swiping LEFT → show RIGHT arrow
     if (activeDirection !== "left") {
       // Direction changed → kill left indicator immediately
@@ -558,7 +574,6 @@ function onTouchMove(e) {
   }
 }
 
-
 function onTouchEnd() {
   const deltaX = touchCurrentX - touchStartX;
 
@@ -566,23 +581,36 @@ function onTouchEnd() {
   resetIndicator(rightIndicator);
   activeDirection = null;
 
+  const lyrics = document.querySelectorAll(".lyrics-text");
+  lyrics.forEach(el => el.classList.remove("lyrics-fade"));
+
   if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
     if (deltaX > 0) {
       navigateSong(-1);
+      vibrateOnce();
     } else {
       navigateSong(1);
+      vibrateOnce();
     }
   }
 }
 
-
 function showIndicator(el, distance) {
-  const progress = Math.min(distance / SWIPE_THRESHOLD, 1);
-  const translate = Math.min(distance, 80);
+  const maxDistance = 80;
+  const resistance =
+    (currentSongIndex === 0 && el === leftIndicator) ||
+    (currentSongIndex === navigationQueue.length - 1 && el === rightIndicator)
+      ? 0.35
+      : 1;
+
+  const resistedDistance = Math.min(distance * resistance, maxDistance);
+  const progress = Math.min(resistedDistance / SWIPE_THRESHOLD, 1);
 
   el.classList.add("visible");
-  el.style.transform = `translateY(-50%) translateX(${el.classList.contains("left") ? translate : -translate}px)`;
-  el.style.opacity = 0.3 + progress * 0.6;
+  el.style.transform = `translateY(-50%) translateX(${
+    el.classList.contains("left") ? resistedDistance : -resistedDistance
+  }px)`;
+  el.style.opacity = 0.25 + progress * 0.6;
 }
 
 function resetIndicator(el) {
