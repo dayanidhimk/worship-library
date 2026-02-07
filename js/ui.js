@@ -15,7 +15,30 @@ const screens = {
 let currentScreen = "categories";
 let songViewSource = "categories"; // or "setlist"
 
+let navigationQueue = [];
+let currentSongIndex = -1;
+
+let touchStartX = 0;
+let touchCurrentX = 0;
+let activeDirection = null;
+
+const SWIPE_THRESHOLD = 150;
+
+const leftIndicator = document.getElementById("swipe-left-indicator");
+const rightIndicator = document.getElementById("swipe-right-indicator");
+
 const uiLock = document.getElementById("ui-lock");
+
+let hapticTriggered = false;
+
+function vibrateOnce() {
+  if (hapticTriggered) return;
+
+  if (navigator.vibrate) {
+    navigator.vibrate(15); // subtle tap
+  }
+  hapticTriggered = true;
+}
 
 function lockUI(text = "Please wait…") {
   uiLock.querySelector(".ui-lock-text").textContent = text;
@@ -142,11 +165,14 @@ export async function renderSongList(categoryId, onSelectSong, push = true) {
       li.textContent = song.name;
       li.onclick = () => {
         songViewSource = "categories";
+        currentSongIndex = navigationQueue.indexOf(song.id);
         onSelectSong(song);
       };
       list.appendChild(li);
     });
   }
+
+  navigationQueue = songs.map(s => s.id);
 
   render(songs);
 
@@ -175,10 +201,18 @@ export function renderSongView(song, push = true) {
     homeTab: songViewSource
   });
 
+  const songView = document.getElementById("screen-song-view");
+
+  songView.addEventListener("touchstart", onTouchStart, { passive: true });
+  songView.addEventListener("touchmove", onTouchMove, { passive: true });
+  songView.addEventListener("touchend", onTouchEnd);
+
+
   document.getElementById("song-title").textContent = song.name;
 
   const container = document.getElementById("lyrics-container");
   container.innerHTML = "";
+  container.scrollTop = 0;
 
    /* ==========================
      SONG META (Key, YouTube)
@@ -244,8 +278,16 @@ export function renderSongView(song, push = true) {
   }
   
   /* ==========================
-     ADD TO SCHEDULE BUTTON
+     ADD TO SCHEDULE & NAVIGATION BUTTONS
   ========================== */
+  const actionBar = document.createElement("div");
+  actionBar.className = "song-action-bar";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "nav-btn";
+  prevBtn.textContent = "‹";
+  prevBtn.onclick = () => navigateSong(-1);
+
   const addBtn = document.createElement("button");
   addBtn.className = "secondary-btn";
   addBtn.textContent = t("add_to_setlist");
@@ -262,8 +304,14 @@ export function renderSongView(song, push = true) {
     addBtn.disabled = true;
   };
 
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "nav-btn";
+  nextBtn.textContent = "›";
+  nextBtn.onclick = () => navigateSong(1);
 
-  container.prepend(addBtn);
+  actionBar.append(prevBtn, addBtn, nextBtn);
+
+  container.prepend(actionBar);
   
   function renderLyrics(raw, font) {
     if (!raw) return;
@@ -317,6 +365,24 @@ export function renderSongView(song, push = true) {
     renderLyrics(song.lyrics.secondaryRaw, song.fonts.secondary);
   }
 }
+
+async function navigateSong(direction) {
+  const nextIndex = currentSongIndex + direction;
+
+  if (nextIndex < 0 || nextIndex >= navigationQueue.length) {
+    showToast("No more songs");
+    return;
+  }
+
+  currentSongIndex = nextIndex;
+  const songId = navigationQueue[currentSongIndex];
+  const song = await getSongById(songId);
+
+  if (song) {
+    renderSongView(song, true);
+  }
+}
+
 
 /* ==========================
    IMPORT SCREEN
@@ -385,6 +451,8 @@ export async function renderSetlist(push = true) {
     return;
   }
 
+  navigationQueue = items.map(i => i.songId);
+
   for (const item of items) {
     const song = await getSongById(item.songId);
     if (!song) continue;
@@ -396,6 +464,7 @@ export async function renderSetlist(push = true) {
     title.textContent = song.name;
     title.onclick = () => {
       songViewSource = "setlist";
+      currentSongIndex = navigationQueue.indexOf(song.id);
       renderSongView(song, true);
     };
 
@@ -464,3 +533,88 @@ export function setActiveTab(tab) {
 }
 
 export { lockUI, unlockUI };
+
+/* ==========================
+   SWIPE FUNCTIONALITY
+========================== */
+
+function onTouchStart(e) {
+  touchStartX = e.touches[0].clientX;
+  touchCurrentX = touchStartX;
+  activeDirection = null;
+  hapticTriggered = false;
+}
+
+function onTouchMove(e) {
+  const lyrics = document.querySelectorAll(".lyrics-text");
+
+  touchCurrentX = e.touches[0].clientX;
+  const deltaX = touchCurrentX - touchStartX;
+
+  if (Math.abs(deltaX) < 20) return;
+
+  if (deltaX > 0) {
+    lyrics.forEach(el => el.classList.add("lyrics-fade"));
+    // Swiping RIGHT → show LEFT arrow
+    if (activeDirection !== "right") {
+      // Direction changed → kill right indicator immediately
+      resetIndicator(rightIndicator);
+      activeDirection = "right";
+    }
+    showIndicator(leftIndicator, deltaX);
+  } else {
+    lyrics.forEach(el => el.classList.add("lyrics-fade"));
+    // Swiping LEFT → show RIGHT arrow
+    if (activeDirection !== "left") {
+      // Direction changed → kill left indicator immediately
+      resetIndicator(leftIndicator);
+      activeDirection = "left";
+    }
+    showIndicator(rightIndicator, Math.abs(deltaX));
+  }
+}
+
+function onTouchEnd() {
+  const deltaX = touchCurrentX - touchStartX;
+
+  resetIndicator(leftIndicator);
+  resetIndicator(rightIndicator);
+  activeDirection = null;
+
+  const lyrics = document.querySelectorAll(".lyrics-text");
+  lyrics.forEach(el => el.classList.remove("lyrics-fade"));
+
+  if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+    if (deltaX > 0) {
+      navigateSong(-1);
+      vibrateOnce();
+    } else {
+      navigateSong(1);
+      vibrateOnce();
+    }
+  }
+}
+
+function showIndicator(el, distance) {
+  const maxDistance = 80;
+  const resistance =
+    (currentSongIndex === 0 && el === leftIndicator) ||
+    (currentSongIndex === navigationQueue.length - 1 && el === rightIndicator)
+      ? 0.35
+      : 1;
+
+  const resistedDistance = Math.min(distance * resistance, maxDistance);
+  const progress = Math.min(resistedDistance / SWIPE_THRESHOLD, 1);
+
+  el.classList.add("visible");
+  el.style.transform = `translateY(-50%) translateX(${
+    el.classList.contains("left") ? resistedDistance : -resistedDistance
+  }px)`;
+  el.style.opacity = 0.25 + progress * 0.6;
+}
+
+function resetIndicator(el) {
+  el.classList.remove("visible");
+  el.style.transform = "translateY(-50%) translateX(0)";
+  el.style.opacity = 0;
+}
