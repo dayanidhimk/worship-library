@@ -1,7 +1,7 @@
 import { getAllCategories, getAllSongs, getSongsByCategory, searchSongsGlobal, searchSongsByCategory, getSongById } from "./queries.js";
 import { fetchRemoteIndex, fetchCategoryXML, getRemoteCategoryById } from "./remote.js";
 import { importCategoryFromXML } from "./importer.js";
-import { getSetlist, removeFromSetlist, addToSetlist } from "./setlist.js";
+import { getSetlist, removeFromSetlist, addToSetlist, clearSetlist } from "./setlist.js";
 import { t } from "./lang.js";
 
 const screens = {
@@ -468,10 +468,82 @@ export async function renderSetlist(push = true) {
   const list = document.getElementById("setlist-list");
   list.innerHTML = "";
 
+  /* ==========================
+     TOP ACTION BAR (EXPORT / IMPORT)
+  ========================== */
+  const topBar = document.createElement("div");
+  topBar.className = "setlist-action-bar";
+
+  const exportBtn = document.createElement("button");
+  exportBtn.className = "secondary-btn";
+  exportBtn.textContent = t("export_setlist") || "Export";
+
+  exportBtn.onclick = async () => {
+    const items = await getSetlist();
+    if (items.length === 0) {
+      showToast("Setlist is empty");
+      return;
+    }
+
+    const payload = {
+      version: 1,
+      setlist: items.map(i => i.songId)
+    };
+
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(payload, null, 2)
+      );
+      showToast("Setlist copied to clipboard");
+    } catch (e) {
+      showToast("Failed to copy setlist");
+    }
+  };
+
+  const importBtn = document.createElement("button");
+  importBtn.className = "secondary-btn";
+  importBtn.textContent = t("import_setlist") || "Import";
+
+  importBtn.onclick = () => {
+  showSetlistImportModal(async (jsonText) => {
+    let data;
+    try {
+      data = JSON.parse(jsonText);
+    } catch {
+      showToast("Invalid JSON");
+      return;
+    }
+
+    if (!data.setlist || !Array.isArray(data.setlist)) {
+      showToast("Invalid setlist format");
+      return;
+    }
+
+    await clearSetlist();
+
+    for (const songId of data.setlist) {
+      await addToSetlist(songId);
+    }
+
+    showToast("Setlist imported");
+    renderSetlist(false);
+  });
+};
+
+
+  topBar.append(importBtn, exportBtn);
+  list.appendChild(topBar);
+
+  /* ==========================
+     SETLIST SONGS
+  ========================== */
   const items = await getSetlist();
 
   if (items.length === 0) {
-    list.innerHTML = "<li class='muted'>No songs in " + t("setlist") + "</li>";
+    const empty = document.createElement("li");
+    empty.className = "muted";
+    empty.textContent = "No songs in " + t("setlist");
+    list.appendChild(empty);
     return;
   }
 
@@ -498,14 +570,30 @@ export async function renderSetlist(push = true) {
     removeBtn.onclick = async (e) => {
       e.stopPropagation();
       await removeFromSetlist(item.id);
-      renderSetlist();
+      renderSetlist(false);
     };
 
-    li.appendChild(title);
-    li.appendChild(removeBtn);
+    li.append(title, removeBtn);
     list.appendChild(li);
   }
+
+  /* ==========================
+     CLEAR SETLIST (BOTTOM)
+  ========================== */
+  const clearBtn = document.createElement("button");
+  clearBtn.className = "primary-btn clear-setlist-btn";
+  clearBtn.style.marginTop = "16px";
+  clearBtn.textContent = t("clear_setlist");
+
+  clearBtn.onclick = async () => {
+    if (!confirm("Clear entire setlist?")) return;
+    await clearSetlist();
+    renderSetlist(false);
+  };
+
+  list.appendChild(clearBtn);
 }
+
 
 function resolveFont(fontName) {
   if (!fontName) {
@@ -645,4 +733,49 @@ function resetIndicator(el) {
 
 export function getSongViewSource() {
   return songViewSource;
+}
+
+function showSetlistImportModal(onConfirm) {
+  // Overlay
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+
+  // Modal
+  const modal = document.createElement("div");
+  modal.className = "modal";
+
+  const title = document.createElement("h3");
+  title.textContent = "Import Setlist";
+
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = "Paste setlist JSON here…";
+
+  const actions = document.createElement("div");
+  actions.className = "modal-actions";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "secondary-btn";
+  cancelBtn.textContent = "Cancel";
+
+  const importBtn = document.createElement("button");
+  importBtn.className = "primary-btn";
+  importBtn.textContent = "Import";
+
+  cancelBtn.onclick = () => overlay.remove();
+
+  importBtn.onclick = () => {
+    if (!textarea.value.trim()) {
+      showToast("Nothing to import");
+      return;
+    }
+    overlay.remove();
+    onConfirm(textarea.value.trim());
+  };
+
+  actions.append(cancelBtn, importBtn);
+  modal.append(title, textarea, actions);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  textarea.focus();
 }

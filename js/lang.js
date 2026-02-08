@@ -24,7 +24,10 @@ const LANG = {
   back_to_songs: "← Songs",
   press_back_again: "Press back again to exit",
   
-  remove_song: "Remove Song"
+  remove_song: "Remove Song",
+
+  import_setlist: "Import Schedule",
+  export_setlist: "Export Schedule"
 };
 
 export function t(key) {
