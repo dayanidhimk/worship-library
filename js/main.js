@@ -22,7 +22,7 @@ document.getElementById("back-to-categories-from-import").textContent = t("back"
 document.getElementById("import-categories").textContent = t("import_categories");
 // document.getElementById("back-to-categories-from-setlist").textContent = t("back");
 // document.getElementById("setlist").textContent = t("setlist");
-document.getElementById("clear-setlist").textContent = t("clear_setlist");
+// document.getElementById("clear-setlist").textContent = t("clear_setlist");
 let isHandlingPopState = false;
 let currentCategory = null;
 let currentSongs = [];
@@ -135,11 +135,11 @@ document.getElementById("back-to-categories-from-import").onclick = () => {
 //   renderCategories(onCategorySelect);
 // };
 
-document.getElementById("clear-setlist").onclick = async () => {
-  await clearSetlist();
-  renderSetlist();
-  setActiveTab("setlist");
-};
+// document.getElementById("clear-setlist").onclick = async () => {
+//   await clearSetlist();
+//   renderSetlist();
+//   setActiveTab("setlist");
+// };
 
 // // TEMP: long press / keyboard shortcut
 // document.addEventListener("keydown", e => {
